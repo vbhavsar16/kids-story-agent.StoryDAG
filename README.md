@@ -1,50 +1,48 @@
-# Hippocratic AI Coding Assignment
-Welcome to the [Hippocratic AI](https://www.hippocraticai.com) coding assignment
+# StoryDAG
 
-## Instructions
-The attached code is a simple python script skeleton. Your goal is to take any simple bedtime story request and use prompting to tell a story appropriate for ages 5 to 10.
-- Incorporate a LLM judge to improve the quality of the story
-- Provide a block diagram of the system you create that illustrates the flow of the prompts and the interaction between judge, storyteller, user, and any other components you add
-- Do not change the openAI model that is being used. 
-- Please use your own openAI key, but do not include it in your final submission.
-- Otherwise, you may change any code you like or add any files
+## Deterministic, judge-guided kids’ stories with real metrics and a feedback turn—powered by GPT-3.5-turbo.
+1. StoryDAG generates child-appropriate stories by running a deterministic DAG: classify → extract constraints → plan beats → tell → judge (with metrics) → optional revise → finalize.
+2. It enforces faithfulness to the user prompt, age fitness (short sentences, simple words), and safety, using measurable checks (word limit, dialogue count, Coleman–Liau readability, required tokens) and an LLM judge. A feedback turn lets users refine tone or content, then the system finalizes—no loops, predictable latency, production-lean.
 
 ---
 
-## Rules
-- This assignment is open-ended
-- You may use any resources you like with the following restrictions
-   - They must be resources that would be available to you if you worked here (so no other humans, no closed AIs, no unlicensed code, etc.)
-   - Allowed resources include but not limited to Stack overflow, random blogs, chatGPT et al
-   - You have to be able to explain how the code works, even if chatGPT wrote it
-- DO NOT PUSH THE API KEY TO GITHUB. OpenAI will automatically delete it
+## Key Features
+
+- Acyclic LangGraph DAG (no infinite loops): single-pass revision for predictable latency.
+- LLM Judge + Objective Metrics: scores faithfulness, instruction adherence, age-fit, safety, tone, clarity, arc, engagement.
+- Constraint Extraction: pulls must_include, setting/style hints from the user’s request to prevent drift.
+- Bedtime / General Modes: calm “bedtime” or upbeat “general” stories—your choice.
+- Feedback Turn: user critiques → revision → finalize (outside the DAG).
+- Strict JSON I/O with drift handling, word-limit coercion, and robust parsing.
 
 ---
 
-## What does "tell a story" mean?
-It should be appropriate for ages 5-10. Other than that it's up to you. Here are some ideas to help get the brain-juices flowing!
-- Use story arcs to tell better stories
-- Allow the user to provide feedback or request changes
-- Categorize the request and use a tailored generation strategy for each category
+## Scoring & Metrics
+
+### Judge rubric (0–5 each)
+- **faithfulness** — uses `must_include`, follows user premise
+- **instruction_adherence** — word limit, ≤2 dialogue lines, structure
+- **age_fit** — simple words, short sentences
+- **safety** — no scary/violent/mature content
+- **bedtime_tone** — calm/sleepy if bedtime; else child-appropriate
+- **clarity** — coherent, easy to follow
+- **arc** — clear begin–middle–end; soft conflict; positive close
+- **engagement** — warm imagery; small delight; not over-exciting
+
+### Objective metrics (ground truth used by judge & code clamps)
+- **word count** & `over_word_limit`
+- **dialogue lines** & `dialogue_over_2`
+- **Coleman–Liau Index** *(readability, no syllable/cmudict dependency)*
+- **average sentence length**
+- **must_include token coverage**
+- **bedtime tail check** *(if bedtime mode)*
+
+> The code **clips scores** when metrics fail (e.g., over word limit ⇒ `instruction_adherence ≤ 3`), so you don’t get unrealistic all-5s.
 
 ---
 
-## How will I be evaluated
-Good question. We want to know the following:
-- The efficacy of the system you design to create a good story
-- Are you comfortable using and writing a python script
-- What kinds of prompting strategies and agent design strategies do you use
-- Are the stories your tool creates good?
-- Can you understand and deconstruct a problem
-- Can you operate in an open-ended environment
-- Can you surprise us
+## 🧑‍💻 CLI UX
 
----
-
-## Other FAQs
-- How long should I spend on this? 
-No more than 2-3 hours
-- Can I change what the input is? 
-Sure
-- How long should the story be?
-You decide
+1. After **v1** is printed, you’ll see **scores + required fixes/strengths**.
+2. You can then type a **feedback** message (e.g., “add a friendly owl,” “make it shorter,” “more rhyme”).
+3. The system **revises once** and prints **v2**.
