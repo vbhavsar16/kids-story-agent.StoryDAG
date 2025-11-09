@@ -1,0 +1,7 @@
+# requirements.txt
+openai==1.*
+langgraph==0.2.*
+langchain==0.3.*
+pydantic==2.*
+textstat==0.7.*
+python-dotenv==1.*
